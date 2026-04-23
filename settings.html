@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#051024"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Dom Sub Hub — Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,1,0&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+:root {
+  --cream: #f0e6d2;
+  --cream-dim: rgba(240,230,211,0.7);
+  --cream-mute: rgba(240,230,211,0.35);
+  --red: #e57373;
+  --green: #4CAF50;
+}
+body { min-height:100dvh; background:var(--bg,#051024); color:var(--cream); overflow-x:hidden; position:relative; }
+.glow-orb { position:fixed; width:460px; height:460px; border-radius:50%; background:radial-gradient(circle,rgba(212,175,55,0.07) 0%,transparent 70%); top:-120px; left:50%; transform:translateX(-50%); pointer-events:none; z-index:0; }
+.shell { position:relative; z-index:1; max-width:480px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column; }
+.settings-container { padding:24px 20px 40px; }
+.settings-group { margin-bottom:28px; }
+.settings-group-label { font-family:'Playfair Display',serif; font-size:10px; font-weight:600; letter-spacing:3px; color:var(--gold,#D4AF37); text-transform:uppercase; margin-bottom:14px; display:block; border-bottom:1px solid rgba(212,175,55,0.15); padding-bottom:6px; }
+.settings-field { margin-bottom:16px; }
+.settings-field label { font-family:'Montserrat',sans-serif; font-size:11px; font-weight:600; color:var(--cream-dim); margin-bottom:6px; display:block; }
+.settings-input { width:100%; padding:14px 16px; background:rgba(5,16,36,.85); border:1px solid rgba(212,175,55,0.2); border-radius:12px; color:var(--cream); font-family:'Montserrat',sans-serif; font-size:14px; outline:none; transition:all .2s; box-sizing:border-box; }
+.settings-input:focus { border-color:var(--gold,#D4AF37); background:rgba(5,16,36,1); }
+.theme-options { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px; }
+.theme-option { padding:10px; border-radius:12px; background:rgba(5,16,36,.85); border:1px solid rgba(212,175,55,0.15); cursor:pointer; text-align:center; transition:all .2s; }
+.theme-option.selected { border-color:var(--gold,#D4AF37); background:rgba(212,175,55,.1); box-shadow:0 0 10px rgba(212,175,55,.15); }
+.theme-swatch { height:36px; border-radius:8px; margin-bottom:8px; border:1px solid rgba(255,255,255,.1); }
+.theme-name { font-family:'Montserrat',sans-serif; font-size:11px; font-weight:600; color:var(--cream-dim); }
+.theme-option.selected .theme-name { color:var(--gold,#D4AF37); }
+.limits-input-row { display:flex; gap:10px; margin-bottom:12px; }
+.limits-add-btn { width:46px; flex-shrink:0; border-radius:12px; background:rgba(212,175,55,.12); border:1px solid rgba(212,175,55,.3); color:var(--gold,#D4AF37); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s; }
+.limits-list { display:flex; flex-direction:column; gap:8px; }
+.limits-empty { font-family:'Montserrat',sans-serif; font-size:11px; color:var(--cream-mute); font-style:italic; }
+.limits-item { display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:12px; background:rgba(244,67,54,.08); border:1px solid rgba(244,67,54,.2); }
+.limits-item-text { flex:1; font-family:'Montserrat',sans-serif; font-size:13px; color:#ffcdd2; }
+.limits-item-del { background:transparent; border:none; color:rgba(244,67,54,.8); cursor:pointer; padding:4px; display:flex; align-items:center; justify-content:center; }
+.dynamic-pill { padding:10px 18px; border-radius:20px; font-family:'Montserrat',sans-serif; font-size:12px; font-weight:600; background:rgba(5,16,36,.85); border:1px solid rgba(212,175,55,0.15); color:var(--cream-dim); cursor:pointer; transition:all .2s; flex:1; text-align:center; }
+.dynamic-pill.selected { background:rgba(212,175,55,.15); border-color:var(--gold,#D4AF37); color:#F5E6A3; }
+.settings-save-btn { width:100%; padding:16px; border-radius:14px; background:linear-gradient(135deg,#D4AF37,#F5E6A3,#D4AF37); color:#051024; font-family:'Playfair Display',serif; font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; border:none; cursor:pointer; transition:all .2s; margin-top:10px; box-shadow:0 6px 20px rgba(212,175,55,0.25); display:flex; align-items:center; justify-content:center; gap:8px; }
+.settings-save-btn:active { transform:scale(.98); }
+.settings-danger-btn { width:100%; padding:16px; border-radius:14px; background:transparent; border:1px solid rgba(244,67,54,.4); color:#e57373; font-family:'Montserrat',sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1.5px; cursor:pointer; transition:all .2s; margin-top:16px; display:flex; align-items:center; justify-content:center; gap:8px; }
+.settings-danger-btn:active { background:rgba(244,67,54,.15); }
+
+/* ── Cloud Sync Section ── */
+.sync-status-bar { display:flex; align-items:center; gap:10px; padding:14px 16px; background:rgba(5,16,36,.85); border:1px solid rgba(212,175,55,0.15); border-radius:12px; margin-bottom:16px; }
+.sync-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; transition:background .4s; }
+.sync-dot.synced   { background:#4CAF50; box-shadow:0 0 8px rgba(76,175,80,.5); }
+.sync-dot.syncing  { background:#FFC107; animation:pulse 1s infinite; }
+.sync-dot.offline  { background:#555; }
+.sync-dot.error    { background:#F44336; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.sync-label { font-family:'Montserrat',sans-serif; font-size:12px; color:var(--cream-dim); flex:1; }
+.sync-uid { font-family:'Montserrat',sans-serif; font-size:9px; color:#444; letter-spacing:1px; }
+
+/* ── Partner Link Card ── */
+.partner-card { background:rgba(212,175,55,0.04); border:1px solid rgba(212,175,55,0.15); border-radius:16px; padding:18px; margin-bottom:16px; }
+.partner-card-title { font-family:'Playfair Display',serif; font-size:13px; font-weight:600; color:#ddd; margin-bottom:4px; }
+.partner-card-desc { font-family:'Montserrat',sans-serif; font-size:10px; color:#555; line-height:1.5; margin-bottom:14px; }
+.partner-linked-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(76,175,80,.12); border:1px solid rgba(76,175,80,.3); border-radius:20px; padding:6px 12px; font-family:'Montserrat',sans-serif; font-size:10px; color:#81C784; font-weight:600; }
+.action-btn { width:100%; padding:13px; border-radius:12px; font-family:'Montserrat',sans-serif; font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; border:none; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px; margin-top:10px; }
+.action-btn.gold { background:rgba(212,175,55,.15); border:1px solid rgba(212,175,55,.35); color:var(--gold,#D4AF37); }
+.action-btn.gold:active { background:rgba(212,175,55,.25); }
+.action-btn.ghost { background:transparent; border:1px solid rgba(255,255,255,.1); color:#666; }
+.action-btn.green { background:rgba(76,175,80,.15); border:1px solid rgba(76,175,80,.35); color:#81C784; }
+
+/* ── Auth modal ── */
+.auth-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:500; display:none; align-items:flex-end; justify-content:center; }
+.auth-modal-overlay.open { display:flex; }
+.auth-modal { background:#0a1b3f; border:1px solid rgba(212,175,55,.2); border-radius:24px 24px 0 0; padding:28px 24px 40px; width:100%; max-width:480px; animation:slideUp .35s cubic-bezier(.22,.68,0,1.2); }
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.auth-modal-title { font-family:'Playfair Display',serif; font-size:18px; font-weight:600; color:#ddd; margin-bottom:6px; }
+.auth-modal-sub { font-family:'Montserrat',sans-serif; font-size:11px; color:#555; margin-bottom:22px; line-height:1.5; }
+.auth-error { font-family:'Montserrat',sans-serif; font-size:11px; color:#e57373; margin-top:8px; min-height:16px; }
+.auth-tabs { display:flex; gap:8px; margin-bottom:20px; }
+.auth-tab { flex:1; padding:10px; border-radius:10px; background:rgba(5,16,36,.6); border:1px solid rgba(212,175,55,.1); color:#555; font-family:'Montserrat',sans-serif; font-size:11px; font-weight:600; cursor:pointer; text-align:center; transition:all .2s; }
+.auth-tab.active { background:rgba(212,175,55,.12); border-color:rgba(212,175,55,.3); color:var(--gold,#D4AF37); }
+
+/* ── Toast ── */
+.toast { position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-20px); background:var(--gold,#D4AF37); color:#051024; padding:12px 24px; border-radius:30px; font-family:'Montserrat',sans-serif; font-size:13px; font-weight:700; box-shadow:0 8px 25px rgba(212,175,55,0.4); opacity:0; pointer-events:none; transition:all .3s cubic-bezier(.22,.68,0,1.2); z-index:1000; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.toast.error { background:#e57373; color:#fff; }
+</style>
+</head>
+<body>
+<div class="glow-orb"></div>
+<div class="shell">
+
+  <div class="topbar">
+    <button class="back-btn" onclick="openSidebar()" aria-label="Menu">
+      <span class="material-symbols-rounded">menu</span>
+    </button>
+    <div class="topbar-center">
+      <h1 class="topbar-title">Settings</h1>
+      <div class="topbar-sub">App Preferences</div>
+    </div>
+  </div>
+
+  <div class="settings-container">
+
+    <!-- ── Cloud Sync Status ── -->
+    <div class="settings-group">
+      <span class="settings-group-label">☁️ Cloud Sync</span>
+
+      <div class="sync-status-bar">
+        <div class="sync-dot offline" id="syncDot"></div>
+        <div>
+          <div class="sync-label" id="syncLabel">Connecting...</div>
+          <div class="sync-uid" id="syncUID"></div>
+        </div>
+      </div>
+
+      <button class="action-btn green" id="migrateBtn" onclick="migrateData()" style="display:none;">
+        <span class="material-symbols-rounded">cloud_upload</span>
+        Upload Local Data to Cloud
+      </button>
+    </div>
+
+    <!-- ── Partner Linking ── -->
+    <div class="settings-group">
+      <span class="settings-group-label">🔗 Partner Access</span>
+
+      <div class="partner-card" id="partnerSection">
+        <div class="partner-card-title">Link Your Dom</div>
+        <div class="partner-card-desc">
+          Create an account and share your email with your Dominant so they can
+          view and edit your data from their own device in real time.
+        </div>
+        <div id="partnerLinkedStatus" style="display:none;">
+          <span class="partner-linked-badge">
+            <span class="material-symbols-rounded" style="font-size:14px;">link</span>
+            Partner Access Active
+          </span>
+        </div>
+        <button class="action-btn gold" id="partnerLinkBtn" onclick="openAuthModal('account')">
+          <span class="material-symbols-rounded">person_add</span>
+          Create Account to Enable Sharing
+        </button>
+        <button class="action-btn ghost" onclick="openAuthModal('dom')" style="margin-top:8px;">
+          <span class="material-symbols-rounded">manage_accounts</span>
+          I'm the Dom — Link to Sub's Data
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Personalization ── -->
+    <div class="settings-group">
+      <span class="settings-group-label">Personalization</span>
+      <div class="settings-field">
+        <label>Your Name (Sub)</label>
+        <input class="settings-input" id="settingName" type="text" maxlength="30" placeholder="e.g. Becca"/>
+      </div>
+      <div class="settings-field">
+        <label>Partner's Name (Dominant)</label>
+        <input class="settings-input" id="settingPartnerName" type="text" maxlength="30" placeholder="e.g. Sir"/>
+      </div>
+      <div class="settings-field">
+        <label>Safeword</label>
+        <input class="settings-input" id="settingSafeWord" type="text" maxlength="30" placeholder="e.g. Red" style="color:#e57373;font-weight:600;"/>
+      </div>
+    </div>
+
+    <!-- ── Theme ── -->
+    <div class="settings-group">
+      <span class="settings-group-label">Theme Engine</span>
+      <div class="theme-options">
+        <div class="theme-option selected" data-theme="midnight" onclick="selectTheme(this)">
+          <div class="theme-swatch" style="background:linear-gradient(135deg,#051024,#0a1b3f)"></div>
+          <div class="theme-name">Midnight Gold</div>
+        </div>
+        <div class="theme-option" data-theme="rose" onclick="selectTheme(this)">
+          <div class="theme-swatch" style="background:linear-gradient(135deg,#2a0815,#4a0f25)"></div>
+          <div class="theme-name">Deep Rose</div>
+        </div>
+        <div class="theme-option" data-theme="obsidian" onclick="selectTheme(this)">
+          <div class="theme-swatch" style="background:linear-gradient(135deg,#0a0a0a,#1a1a1a)"></div>
+          <div class="theme-name">Obsidian</div>
+        </div>
+        <div class="theme-option" data-theme="light" onclick="selectTheme(this)">
+          <div class="theme-swatch" style="background:linear-gradient(135deg,#f5ede0,#e8d5b8)"></div>
+          <div class="theme-name">Parchment</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Hard Limits ── -->
+    <div class="settings-group">
+      <span class="settings-group-label">Hard Limits</span>
+      <div class="limits-input-row">
+        <input class="settings-input" id="limitInput" type="text" maxlength="40" placeholder="Add a hard limit..." onkeydown="if(event.key==='Enter') addLimit()"/>
+        <button class="limits-add-btn" onclick="addLimit()">
+          <span class="material-symbols-rounded">add</span>
+        </button>
+      </div>
+      <div class="limits-list" id="limitsList"></div>
+    </div>
+
+    <!-- ── Typography ── -->
+    <div class="settings-group">
+      <span class="settings-group-label">Typography & Display</span>
+      <div class="settings-field">
+        <label>Global Text Size</label>
+        <div style="display:flex;gap:8px;margin-top:8px;" id="fontSizePills">
+          <div class="dynamic-pill" data-size="fs-small" onclick="selectFontSize(this)">Small</div>
+          <div class="dynamic-pill selected" data-size="fs-medium" onclick="selectFontSize(this)">Medium</div>
+          <div class="dynamic-pill" data-size="fs-large" onclick="selectFontSize(this)">Large</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Training Roster ── -->
+    <div class="settings-group">
+      <span class="settings-group-label" style="color:#e57373;">Training Roster (Sir's Eyes Only)</span>
+      <div style="font-family:'Montserrat',sans-serif;font-size:11px;color:var(--cream-mute);margin-bottom:12px;line-height:1.5;font-style:italic;">
+        Select which trainings are currently active. Locked trainings are greyed out with a padlock.
+      </div>
+      <div class="settings-field"><label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><input type="checkbox" id="trk5" class="training-toggle" value="the-5-training.html"/> The "5" Training</label></div>
+      <div class="settings-field"><label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><input type="checkbox" id="trkPlug" class="training-toggle" value="anal-plug-training.html"/> Anal Plug Training</label></div>
+      <div class="settings-field"><label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><input type="checkbox" id="trkDeep" class="training-toggle" value="deepthroat-training.html"/> Deep Throat Training</label></div>
+      <div class="settings-field"><label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><input type="checkbox" id="trkKegel" class="training-toggle" value="kegel-training.html"/> Kegel Training</label></div>
+      <div class="settings-field"><label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><input type="checkbox" id="trkPos" class="training-toggle" value="position-training.html"/> Position Training</label></div>
+    </div>
+
+    <button class="settings-save-btn" onclick="saveSettings()">
+      <span class="material-symbols-rounded">save</span>
+      Save Changes
+    </button>
+
+    <button class="settings-danger-btn" onclick="clearHistory()">
+      <span class="material-symbols-rounded">delete_forever</span>
+      Clear All App Data
+    </button>
+  </div>
+</div>
+
+<!-- ── Auth Modal ── -->
+<div class="auth-modal-overlay" id="authModalOverlay" onclick="closeAuthModal(event)">
+  <div class="auth-modal">
+    <div class="auth-modal-title" id="authModalTitle">Create Account</div>
+    <div class="auth-modal-sub" id="authModalSub">Create an account to enable cloud sync and partner access across devices.</div>
+
+    <!-- Tabs (shown for account creation) -->
+    <div class="auth-tabs" id="authTabs">
+      <div class="auth-tab active" onclick="switchAuthTab('create')">Create Account</div>
+      <div class="auth-tab" onclick="switchAuthTab('signin')">Sign In</div>
+    </div>
+
+    <div class="settings-field">
+      <label>Email</label>
+      <input class="settings-input" id="authEmail" type="email" placeholder="your@email.com" autocomplete="email"/>
+    </div>
+    <div class="settings-field" id="authPasswordField">
+      <label>Password</label>
+      <input class="settings-input" id="authPassword" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/>
+    </div>
+    <div class="settings-field" id="authSubEmailField" style="display:none;">
+      <label>Sub's Email Address</label>
+      <input class="settings-input" id="authSubEmail" type="email" placeholder="sub@email.com"/>
+    </div>
+
+    <div class="auth-error" id="authError"></div>
+
+    <button class="settings-save-btn" id="authSubmitBtn" onclick="submitAuth()">
+      <span class="material-symbols-rounded" id="authSubmitIcon">person_add</span>
+      <span id="authSubmitLabel">Create Account</span>
+    </button>
+    <button class="action-btn ghost" onclick="closeAuthModal()" style="margin-top:10px;">Cancel</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- Firebase module -->
+<script type="module" src="firebase.js"></script>
+
+<script>
+// ── Auth modal state ─────────────────────────────
+let _authMode = 'create'; // 'create' | 'signin' | 'dom'
+
+function openAuthModal(mode) {
+  _authMode = mode;
+  const overlay = document.getElementById('authModalOverlay');
+  const tabs    = document.getElementById('authTabs');
+  const title   = document.getElementById('authModalTitle');
+  const sub     = document.getElementById('authModalSub');
+  const passField    = document.getElementById('authPasswordField');
+  const subEmailField = document.getElementById('authSubEmailField');
+  const icon    = document.getElementById('authSubmitIcon');
+  const label   = document.getElementById('authSubmitLabel');
+
+  document.getElementById('authError').textContent = '';
+  document.getElementById('authEmail').value = '';
+  document.getElementById('authPassword').value = '';
+
+  if (mode === 'dom') {
+    tabs.style.display = 'none';
+    title.textContent  = "Dom Access";
+    sub.textContent    = "Sign in with your Dom account, then enter your sub's email to link to their data.";
+    passField.style.display    = 'flex';
+    subEmailField.style.display = 'flex';
+    icon.textContent  = 'manage_accounts';
+    label.textContent = 'Sign In & Link';
+  } else {
+    tabs.style.display = 'flex';
+    subEmailField.style.display = 'none';
+    switchAuthTab(mode === 'signin' ? 'signin' : 'create');
+  }
+
+  overlay.classList.add('open');
+  setTimeout(() => document.getElementById('authEmail').focus(), 350);
+}
+
+function closeAuthModal(e) {
+  if (e && e.target !== document.getElementById('authModalOverlay')) return;
+  document.getElementById('authModalOverlay').classList.remove('open');
+}
+
+function switchAuthTab(tab) {
+  _authMode = tab;
+  document.querySelectorAll('.auth-tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && tab === 'create') || (i === 1 && tab === 'signin'));
+  });
+  const icon  = document.getElementById('authSubmitIcon');
+  const label = document.getElementById('authSubmitLabel');
+  const title = document.getElementById('authModalTitle');
+  if (tab === 'create') {
+    title.textContent = 'Create Account';
+    icon.textContent  = 'person_add';
+    label.textContent = 'Create Account';
+  } else {
+    title.textContent = 'Sign In';
+    icon.textContent  = 'login';
+    label.textContent = 'Sign In';
+  }
+}
+
+async function submitAuth() {
+  const email    = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errEl    = document.getElementById('authError');
+  errEl.textContent = '';
+
+  if (!email) { errEl.textContent = 'Please enter your email.'; return; }
+
+  const btn = document.getElementById('authSubmitBtn');
+  btn.style.opacity = '0.6';
+  btn.style.pointerEvents = 'none';
+
+  try {
+    if (_authMode === 'dom') {
+      const subEmail = document.getElementById('authSubEmail').value.trim();
+      if (!subEmail) { errEl.textContent = 'Enter your sub\'s email.'; return; }
+      await window.DSH.auth.signIn(email, password);
+      await window.DSH.auth.linkDomToSub(subEmail);
+      showToast('Dom access linked successfully!');
+      updateSyncUI();
+      document.getElementById('partnerLinkedStatus').style.display = 'block';
+      document.getElementById('partnerLinkBtn').style.display = 'none';
+
+    } else if (_authMode === 'create') {
+      await window.DSH.auth.createAccount(email, password);
+      showToast('Account created! Share your email with your Dom.');
+      updateSyncUI();
+      document.getElementById('partnerLinkBtn').textContent = '✓ Account Active — Share Your Email';
+      document.getElementById('partnerLinkBtn').style.opacity = '0.6';
+
+    } else {
+      await window.DSH.auth.signIn(email, password);
+      showToast('Signed in successfully!');
+      updateSyncUI();
+    }
+
+    document.getElementById('authModalOverlay').classList.remove('open');
+  } catch (e) {
+    const msgs = {
+      'auth/email-already-in-use': 'That email already has an account. Try signing in instead.',
+      'auth/invalid-email':         'Please enter a valid email address.',
+      'auth/weak-password':         'Password must be at least 6 characters.',
+      'auth/wrong-password':        'Incorrect password.',
+      'auth/user-not-found':        'No account found for that email.',
+      'auth/too-many-requests':     'Too many attempts. Please wait a moment.',
+    };
+    errEl.textContent = msgs[e.code] || e.message;
+  } finally {
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+  }
+}
+
+// ── Sync UI ──────────────────────────────────────
+function updateSyncUI() {
+  const dot   = document.getElementById('syncDot');
+  const label = document.getElementById('syncLabel');
+  const uid   = document.getElementById('syncUID');
+
+  if (!window.DSH) return;
+
+  const user = window.DSH.auth.getUser();
+  const role = window.DSH.role;
+
+  if (!user) {
+    dot.className   = 'sync-dot offline';
+    label.textContent = 'Not connected';
+    uid.textContent   = '';
+    return;
+  }
+
+  if (user.isAnonymous) {
+    dot.className   = 'sync-dot syncing';
+    label.textContent = 'Local only — create account to sync';
+    uid.textContent   = 'Device ID: ' + user.uid.slice(0,8) + '...';
+    document.getElementById('migrateBtn').style.display = 'flex';
+    return;
+  }
+
+  dot.className   = 'sync-dot synced';
+  label.textContent = role === 'dom'
+    ? '✓ Dom access — viewing sub\'s data'
+    : '✓ Cloud synced — ' + (user.email || '');
+  uid.textContent   = 'UID: ' + user.uid.slice(0,8) + '...';
+  document.getElementById('migrateBtn').style.display = 'none';
+}
+
+async function migrateData() {
+  const btn = document.getElementById('migrateBtn');
+  btn.textContent = 'Uploading...';
+  btn.style.opacity = '0.6';
+  try {
+    const count = await window.DSH.data.migrateLocalToFirestore();
+    showToast(`${count} data sets uploaded to cloud!`);
+    updateSyncUI();
+  } catch (e) {
+    showToast('Upload failed: ' + e.message, true);
+  } finally {
+    btn.style.opacity = '1';
+    btn.innerHTML = '<span class="material-symbols-rounded">cloud_upload</span> Upload Local Data to Cloud';
+  }
+}
+
+// ── Settings Load/Save ───────────────────────────
+async function loadSettings() {
+  let s = {};
+  if (window.DSH) {
+    s = await window.DSH.data.getSettings() || {};
+  } else {
+    try { s = JSON.parse(localStorage.getItem('sp_settings') || '{}'); } catch {}
+  }
+
+  document.getElementById('settingName').value        = s.subName  || '';
+  document.getElementById('settingPartnerName').value = s.domName  || '';
+  document.getElementById('settingSafeWord').value    = s.safeWord || '';
+
+  const theme = s.theme || 'midnight';
+  document.querySelectorAll('.theme-option').forEach(el => {
+    el.classList.toggle('selected', el.dataset.theme === theme);
+  });
+
+  const size = s.fontSize || 'fs-medium';
+  document.querySelectorAll('.dynamic-pill').forEach(el => {
+    el.classList.toggle('selected', el.dataset.size === size);
+  });
+
+  const activeTs = s.activeTrainings || ['anal-plug-training.html','position-training.html','kegel-training.html'];
+  document.querySelectorAll('.training-toggle').forEach(chk => {
+    chk.checked = activeTs.includes(chk.value);
+  });
+
+  renderLimitsList(s.limits || []);
+}
+
+async function saveSettings() {
+  const existing = window.DSH
+    ? await window.DSH.data.getSettings() || {}
+    : (() => { try { return JSON.parse(localStorage.getItem('sp_settings') || '{}'); } catch { return {}; } })();
+
+  const themeEl  = document.querySelector('.theme-option.selected');
+  const sizeEl   = document.querySelector('.dynamic-pill.selected');
+  const activeTs = Array.from(document.querySelectorAll('.training-toggle:checked')).map(c => c.value);
+
+  const s = {
+    ...existing,
+    subName:         document.getElementById('settingName').value.trim(),
+    domName:         document.getElementById('settingPartnerName').value.trim(),
+    safeWord:        document.getElementById('settingSafeWord').value.trim(),
+    theme:           themeEl ? themeEl.dataset.theme : 'midnight',
+    fontSize:        sizeEl  ? sizeEl.dataset.size  : 'fs-medium',
+    activeTrainings: activeTs
+  };
+
+  if (window.DSH) {
+    await window.DSH.data.saveSettings(s);
+  } else {
+    localStorage.setItem('sp_settings', JSON.stringify(s));
+  }
+
+  showToast('Settings saved & synced ☁️');
+}
+
+function selectTheme(el) {
+  document.querySelectorAll('.theme-option').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function selectFontSize(el) {
+  document.querySelectorAll('#fontSizePills .dynamic-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ── Limits ───────────────────────────────────────
+let _limits = [];
+
+function renderLimitsList(limits) {
+  _limits = limits || [];
+  const list = document.getElementById('limitsList');
+  if (!_limits.length) {
+    list.innerHTML = '<div class="limits-empty">No hard limits active. Sir will have full creative freedom.</div>';
+    return;
+  }
+  list.innerHTML = _limits.map((l, i) => `
+    <div class="limits-item">
+      <span class="material-symbols-rounded" style="font-size:18px;color:rgba(244,67,54,.8);flex-shrink:0">block</span>
+      <span class="limits-item-text">${l}</span>
+      <button class="limits-item-del" onclick="removeLimit(${i})">
+        <span class="material-symbols-rounded" style="font-size:20px;">close</span>
+      </button>
+    </div>`).join('');
+}
+
+async function addLimit() {
+  const input = document.getElementById('limitInput');
+  const val = (input.value || '').trim();
+  if (!val || _limits.includes(val)) return;
+  _limits.push(val);
+  input.value = '';
+  renderLimitsList(_limits);
+  await _saveLimits();
+}
+
+async function removeLimit(i) {
+  _limits.splice(i, 1);
+  renderLimitsList(_limits);
+  await _saveLimits();
+}
+
+async function _saveLimits() {
+  if (window.DSH) {
+    const s = await window.DSH.data.getSettings() || {};
+    s.limits = _limits;
+    await window.DSH.data.saveSettings(s);
+  } else {
+    try {
+      const s = JSON.parse(localStorage.getItem('sp_settings') || '{}');
+      s.limits = _limits;
+      localStorage.setItem('sp_settings', JSON.stringify(s));
+    } catch {}
+  }
+}
+
+// ── Clear Data ───────────────────────────────────
+function clearHistory() {
+  if (confirm('Clear ALL scenes, histories, and progression data? This cannot be undone.')) {
+    localStorage.removeItem('sp_history');
+    if (confirm('Also clear your profile settings and limits?')) {
+      localStorage.removeItem('sp_settings');
+      localStorage.removeItem('bdsm_checklist');
+      localStorage.removeItem('sp_onboarded');
+    }
+    showToast('Data cleared');
+    setTimeout(() => location.reload(), 1500);
+  }
+}
+
+// ── Toast ────────────────────────────────────────
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast' + (isError ? ' error' : '') + ' show';
+  setTimeout(() => t.className = 'toast', 3500);
+}
+
+// ── Boot ─────────────────────────────────────────
+window.addEventListener('dsh:ready', () => {
+  updateSyncUI();
+  loadSettings();
+
+  // Watch for real-time settings changes (e.g. Dom editing)
+  if (window.DSH) {
+    window.DSH.data.watchSettings(updatedSettings => {
+      renderLimitsList(updatedSettings.limits || []);
+    });
+  }
+});
+
+// Fallback if firebase.js hasn't loaded yet
+window.addEventListener('load', () => {
+  if (!window.DSH) loadSettings();
+});
+</script>
+
+<!-- Global Sidebar -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="global-sidebar" id="globalSidebar">
+  <div class="sidebar-header"><div class="sidebar-brand">Dom Sub Hub</div></div>
+  <div class="sidebar-nav">
+    <a href="index.html" class="sidebar-link"><span class="material-symbols-rounded sidebar-icon">home</span> Home</a>
+    <a href="scene-menu.html" class="sidebar-link"><span class="material-symbols-rounded sidebar-icon">theater_comedy</span> Scene Menu</a>
+    <a href="training-menu.html" class="sidebar-link"><span class="material-symbols-rounded sidebar-icon">fitness_center</span> Training Programs</a>
+    <a href="assessment-menu.html" class="sidebar-link"><span class="material-symbols-rounded sidebar-icon">assignment</span> Assessments & Ratings</a>
+    <a href="public-game.html" class="sidebar-link"><span class="material-symbols-rounded sidebar-icon">casino</span> Sir's Public Tasks</a>
+    <a href="bdsm-checklist.html" class="sidebar-link"><span class="material-symbols-rounded sidebar-icon">fact_check</span> BDSM Checklists</a>
+    <a href="help.html" class="sidebar-link"><span class="material-symbols-rounded sidebar-icon">help</span> Help & Info</a>
+    <a href="settings.html" class="sidebar-link"><span class="material-symbols-rounded sidebar-icon" style="color:var(--gold);">settings</span> Settings</a>
+  </div>
+</div>
+<script>
+function openSidebar()  { document.getElementById('sidebarOverlay').classList.add('open');    document.getElementById('globalSidebar').classList.add('open'); }
+function closeSidebar() { document.getElementById('sidebarOverlay').classList.remove('open'); document.getElementById('globalSidebar').classList.remove('open'); }
+</script>
+</body>
+</html>
